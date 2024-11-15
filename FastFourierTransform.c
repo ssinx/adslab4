@@ -4,7 +4,7 @@
 const double PI=3.14159265358979323846;
 const long long p=1e9+7,M=1<<15,M2modp=(M*M)%p;//M2modp=M^2 mod p
 long long n,ans,N;
-double cnt[2000000]={0,1,2,1},tmp[2000000],ttt[2000000];
+long long cnt[2000000]={0,1,2,1},tmp[2000000],ttt[2000000];
 typedef struct{
     double Re,Im;
 }Complex;
@@ -79,21 +79,18 @@ void fft(Complex *a,long long n,long long inv)
         }
     }
 }
-void polymul(double *a,double *b,double *c,long long n)
+void polymul(long long *a,long long *b,long long *c,long long n)
 {
     Complex Cal[n],Cbl[n],Cah[n],Cbh[n];
-    long long carrier;
     for(long long i=0;i<n;++i)
-    {
-        carrier=a[i];                   //a[i]=al[i]+M*ah[i]
-        Cal[i].Re=carrier%M;
+    { 
+        Cal[i].Re=a[i]%M;               //a[i]=al[i]+M*ah[i]
         Cal[i].Im=0;
-        Cah[i].Re=carrier/M;
-        Cah[i].Im=0;
-        carrier=b[i];                   //b[i]=bl[i]+M*bh[i]
-        Cbl[i].Re=carrier%M;
+        Cah[i].Re=a[i]/M;
+        Cah[i].Im=0;         
+        Cbl[i].Re=b[i]%M;               //b[i]=bl[i]+M*bh[i]
         Cbl[i].Im=0;
-        Cbh[i].Re=carrier/M;
+        Cbh[i].Re=b[i]/M;
         Cbh[i].Im=0;
     }
     fft(Cal,n,0);                       //fft
@@ -122,7 +119,7 @@ void polymul(double *a,double *b,double *c,long long n)
         c[i]=(ll%p+(hl+lh)%p*M%p+hh%p*M2modp%p)%p;
     }
 }
-void clear(double *a,long long n,long long N)   //clear a[n+1]~a[N]
+void clear(long long *a,long long n,long long N)   //clear a[n+1]~a[N]
 {                                               //which are not used
     for(long long i=n;i<=N;++i)                 //to avoid bugs
         a[i]=0;
@@ -132,8 +129,7 @@ int main()
     scanf("%lld",&n);
     N=log2(n+1)+1;
     N=2<<N;                         //guarantee N>=2n
-    long long carrier=cnt[n];
-    ans=(ans+carrier)%p;
+    ans=(ans+cnt[n])%p;
     for(long long h=1;h<=log2(n+1);++h)
     {                               //cnt=T_h(x)
         for(int i=N;i>=1;--i)       //tmp=xT_h(x)
@@ -147,8 +143,7 @@ int main()
         clear(tmp,n+1,N);
         polymul(ttt,tmp,cnt,N);     //T_{h+1}(x)=xT_h(x)T_h(x)(xT_h(x)+1)^2
         clear(cnt,n+1,N);
-        carrier=cnt[n];
-        ans=(ans+carrier)%p;
+        ans=(ans+cnt[n])%p;
     }                               //cnt=T_{h+1}(x)
     printf("%lld\n",ans);
     return 0;
